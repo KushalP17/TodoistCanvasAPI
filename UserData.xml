@@ -1,8 +1,0 @@
-<User CanvasAPIKEY="13997~hcHTs5cUw9w8ezvidfNG6XSmjdOvFEZ9Y9XLd1Z5lr1US90kKTjciP23CcUn7gKO" TodoistAPIKEY="541dcc565f0b489aba829275e6a2167d9097c665" TodoistProjectID="2326003909">
-	<ComputerVision CanvasID="272410" TodoistID="8338739178" Name="Computer Vision" />
-	<AssemblyArch CanvasID="273509" TodoistID="8338739661" Name="Assembly &amp; Arch" />
-	<DSA2 CanvasID="273700" TodoistID="8338745986" Name="DSA2" />
-	<BigDataAlgorithms CanvasID="272330" TodoistID="8338747347" Name="Big Data Algorithms" />
-	<ElectricMachinery CanvasID="272447" TodoistID="8338746578" Name="Electric Machinery" />
-	<SpaceClass CanvasID="287661" TodoistID="8338746940" Name="Space Class" />
-</User>
