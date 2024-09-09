@@ -1,0 +1,4 @@
+2024-09-08 19:32:42.597693: 'NoneType' object has no attribute 'find'
+2024-09-08 19:45:54.902343: 'TodoistProjectID'
+2024-09-08 19:46:10.097131: 'TodoistProjectID'
+2024-09-08 19:46:43.591574: 'TodoistProjectID'
