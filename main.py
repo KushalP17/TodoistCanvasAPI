@@ -176,6 +176,9 @@ try:
 
     updateAssignments()
 
+    with open("ErrorLogger.txt", 'a') as file:
+        file.write(f"{datetime.now()}: Ran Successfully\n")
+
 except Exception as error:
     with open("ErrorLogger.txt", 'a') as file:
         file.write(f"{datetime.now()}: {error}\n")
