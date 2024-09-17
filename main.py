@@ -26,8 +26,10 @@ def cleanDescription(taskDescription):
     newDesc = ""
 
     if desc is not None:
-        while desc.find("<p>") != -1:
+        while desc.find("<p>") != -1 or desc.find("<a ") != -1:
             linkelementIdx = desc.find("<p><a")
+            paragraphElementIdx = desc.find("<p>")
+            soleLinkElementIdx = desc.find("<a ")
             if linkelementIdx != -1:
                 desc = desc[linkelementIdx:]
                 linkIdx = desc.find("href=")
@@ -39,13 +41,25 @@ def cleanDescription(taskDescription):
                 linkText = desc[linkTextIdx+1:linkTextEndIdx]
                 desc = desc[linkTextEndIdx:]
                 newDesc = newDesc + f"[{linkText}]({linkStr})\n"
-            else:
+            elif paragraphElementIdx != -1:
                 textElementIdx = desc.find("<p>")
                 desc = desc[textElementIdx+3:]
                 endTextIdx = desc.find("</p>")
                 textStr = desc[0:endTextIdx]
                 desc = desc[endTextIdx:]
                 newDesc = newDesc + textStr
+            elif soleLinkElementIdx != -1:
+                desc = desc[soleLinkElementIdx:]
+                linkIdx = desc.find("href=")
+                desc = desc[linkIdx+6:]
+                endLinkIdx = desc.find('"')
+                linkStr = desc[0:endLinkIdx]
+                linkTextIdx = desc.find(">")
+                linkTextEndIdx = desc.find("</a>")
+                linkText = desc[linkTextIdx+1:linkTextEndIdx]
+                desc = desc[linkTextEndIdx:]
+                newDesc = newDesc + f"[{linkText}]({linkStr})\n"
+
 
     return newDesc
 
@@ -126,6 +140,7 @@ def updateAssignments():
             bufDC = "{" + bufDC + "}"
 
         body = json.loads(bufDC)
+        print(body)
 
         for assignment in range(len(body)):
             createTask(canvasClass, body[assignment]["name"], body[assignment]["due_at"], body[assignment]["description"], str(body[assignment]["id"]), canvasClass)
