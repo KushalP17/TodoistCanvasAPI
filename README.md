@@ -9,6 +9,7 @@ This relies on Task Scheduler to run main.py for the updating to occur, but ther
 Setup involves running Start.py, which should autopopulate all local XML files and give a UI for user information to be entered easily enough. This will create Todoist Tasks of each entered class in the user-specified Todoist Project, in which all scraped assignments will be gathered as subtasks in each class task.
 
 Basic Control Flow is as follows:
+
 For each Canvas class:
     Scrape each Assignment & its Data
     Parse Descripton from HTML to something more readable
