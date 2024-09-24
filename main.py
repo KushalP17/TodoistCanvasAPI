@@ -25,48 +25,98 @@ def cleanDescription(taskDescription):
     desc = taskDescription
     newDesc = ""
 
-    if desc is not None:
-        while desc.find("<p>") != -1 or desc.find("<a ") != -1:
-            linkelementIdx = desc.find("<p><a")
-            paragraphElementIdx = desc.find("<p>")
-            soleLinkElementIdx = desc.find("<a ")
-            if linkelementIdx != -1:
-                desc = desc[linkelementIdx:]
-                linkIdx = desc.find("href=")
-                desc = desc[linkIdx+6:]
-                endLinkIdx = desc.find('"')
-                linkStr = desc[0:endLinkIdx]
-                linkTextIdx = desc.find(">")
-                linkTextEndIdx = desc.find("<")
-                linkText = desc[linkTextIdx+1:linkTextEndIdx]
-                desc = desc[linkTextEndIdx:]
-                newDesc = newDesc + f"[{linkText}]({linkStr})\n"
-            elif paragraphElementIdx != -1:
-                textElementIdx = desc.find("<p>")
-                desc = desc[textElementIdx+3:]
-                endTextIdx = desc.find("</p>")
-                textStr = desc[0:endTextIdx]
-                desc = desc[endTextIdx:]
-                newDesc = newDesc + textStr
-            elif soleLinkElementIdx != -1:
-                desc = desc[soleLinkElementIdx:]
-                linkIdx = desc.find("href=")
-                desc = desc[linkIdx+6:]
-                endLinkIdx = desc.find('"')
-                linkStr = desc[0:endLinkIdx]
-                linkTextIdx = desc.find(">")
-                linkTextEndIdx = desc.find("</a>")
-                linkText = desc[linkTextIdx+1:linkTextEndIdx]
-                desc = desc[linkTextEndIdx:]
-                newDesc = newDesc + f"[{linkText}]({linkStr})\n"
+    if desc is None:
+        return
+    
+    while desc.find("<p>") != -1 or desc.find("<a ") != -1 or desc.find("<") != -1:
+        prghIdx = desc.find("<p>")
+        linkIdx = desc.find("<a ")
+        htmlIdx = desc.find("<")
+        firstChar = checkText(desc)
+
+        diffIdx = prghIdx - linkIdx
+
+        if(htmlIdx != -1 and not firstChar):
+            if(htmlIdx < prghIdx and htmlIdx < linkIdx):
+                desc, outputDesc = descHTML(desc)
+            elif(diffIdx > 1 or diffIdx == -(linkIdx+1) and linkIdx != -1):
+                desc, outputDesc = descLink(desc)
+            elif(diffIdx < -1 or diffIdx == (prghIdx+1) and prghIdx != -1):
+                desc, outputDesc = descParagraph(desc)
+            else:
+                desc, outputDesc = descHTML(desc)
+        else:
+            desc, outputDesc = descText(desc)
+
+        newDesc += outputDesc
 
 
+    
+    newDesc += desc
     return newDesc
+    
+
+def checkText(desc: str):
+    return (desc[0] != '<' and desc[0] != '>')
+
+
+def descText(desc: str):
+    # handle text
+    nonTextIdx = desc.find('<')
+    outputDesc = desc[:nonTextIdx]
+    desc = desc[nonTextIdx:]
+    return desc, outputDesc
+
+
+def descLink(desc: str):
+    # handle link html elements
+    startLIdx = desc.find("<a ")
+    desc = desc[startLIdx+3:]
+    linkIdx = desc.find("href=")
+    desc = desc[linkIdx+6:]
+    endLIdx = desc.find("</a>")
+
+    
+    endLink = desc.find('"')
+    link = desc[:endLink]
+
+    startMidDesc = desc.find(">")
+    middleDesc = desc[startMidDesc+1:endLIdx]
+
+    desc = desc[endLIdx+4:]
+
+    outputDesc = cleanDescription(middleDesc)
+
+    outputDesc = f"[{outputDesc}]({link})"
+    return desc, outputDesc
+    
+
+def descParagraph(desc: str):
+    # handle paragraph html elements
+    startPIdx = desc.find("<p>")
+    endPIdx = desc.find("</p>")
+    desc = desc[startPIdx+3:]
+    middleDesc = desc[:endPIdx-3]
+    desc = desc[endPIdx+1:]
+    outputDesc = cleanDescription(middleDesc)
+    return desc, outputDesc
+
+
+
+def descHTML(desc: str):
+    # handle misc html elements
+    # startElemIdx = desc.find("<")
+    endElemIdx = desc.find(">")
+
+    desc = desc[endElemIdx+1:]
+    return desc, ""
+    print("HTML parsed")
+
 
 # Update Date and Description
 def updateDateAndDesc(todoistID, taskDate, taskDescription):
     taskDescription = cleanDescription(taskDescription)
-    tdAPI.update_task(todoistID, due = taskDate, description=taskDescription)
+    tdAPI.update_task(todoistID, due= taskDate, description=taskDescription)
 
 # Don't add tasks twice using Canvas ID to check
 def searchDuplicateTask( className, taskName, canvasID, taskDate, taskDescription):
