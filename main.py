@@ -107,16 +107,18 @@ def descHTML(desc: str):
     # handle misc html elements
     # startElemIdx = desc.find("<")
     endElemIdx = desc.find(">")
-
-    desc = desc[endElemIdx+1:]
+    if endElemIdx == -1:
+        desc = ""
+    else:
+        desc = desc[endElemIdx+1:]
     return desc, ""
-    print("HTML parsed")
+    # print("HTML parsed")
 
 
 # Update Date and Description
 def updateDateAndDesc(todoistID, taskDate, taskDescription):
     taskDescription = cleanDescription(taskDescription)
-    tdAPI.update_task(todoistID, due= taskDate, description=taskDescription)
+    tdAPI.update_task(todoistID, due_date=taskDate, description=taskDescription)
 
 # Don't add tasks twice using Canvas ID to check
 def searchDuplicateTask( className, taskName, canvasID, taskDate, taskDescription):
@@ -190,7 +192,7 @@ def updateAssignments():
             bufDC = "{" + bufDC + "}"
 
         body = json.loads(bufDC)
-        print(body)
+        # print(body)
 
         for assignment in range(len(body)):
             createTask(canvasClass, body[assignment]["name"], body[assignment]["due_at"], body[assignment]["description"], str(body[assignment]["id"]), canvasClass)

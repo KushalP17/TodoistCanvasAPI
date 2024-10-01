@@ -91,10 +91,12 @@ def descHTML(desc: str):
     # handle misc html elements
     # startElemIdx = desc.find("<")
     endElemIdx = desc.find(">")
-
-    desc = desc[endElemIdx+1:]
+    if endElemIdx == -1:
+        desc = ""
+    else:
+        desc = desc[endElemIdx+1:]
     return desc, ""
-    print("HTML parsed")
+    # print("HTML parsed")
 
 
 testDesc = '<a title="Semester Project Description" href="https://canvas.pitt.edu/courses/272410/pages/semester-project-description" data-course-type="wikiPages" data-published="true" data-api-endpoint="https://canvas.pitt.edu/api/v1/courses/272410/pages/semester-project-description" data-api-returntype="Page">Semester Project Description</a>'
@@ -105,3 +107,5 @@ print(cleanDescription(testDesc2))
 
 testDesc3 = None
 print(cleanDescription(testDesc3))
+
+print(descHTML("</script"))
