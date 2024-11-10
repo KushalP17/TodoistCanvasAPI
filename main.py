@@ -16,6 +16,7 @@ def XMLfriendlyName(name):
     name = name.replace(")","")
     name = name.replace(",","")
     name = name.replace("?","")
+    name = name.replace(":","")
     return name
 
 # Description Parse
@@ -247,6 +248,7 @@ try:
         file.write(f"{datetime.now()}: Ran Successfully\n")
 
 except Exception as error:
+    print(error)
     with open("ErrorLogger.txt", 'a') as file:
         file.write(f"{datetime.now()}: {error}\n")
 
