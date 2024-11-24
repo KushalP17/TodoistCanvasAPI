@@ -1,5 +1,6 @@
 import pycurl
 from io import BytesIO
+from io import StringIO
 import os
 import json
 from todoist_api_python.api import TodoistAPI
@@ -175,29 +176,65 @@ def createTask(className = None, taskName = None, taskDate = None, taskDescripti
         documentTask(className, taskName, taskID, todoistID)
 
 
+
 def updateAssignments():
 
     for canvasClass in IDDict.keys():
         # Make a buffer, retrieve Canvas assignment info per course and put it in the buffer
-        buffer = BytesIO()
-        client.setopt(client.URL, "https://canvas.pitt.edu/api/v1/courses/" + str(IDDict[canvasClass][0]) + "/assignments/")
-        client.setopt(client.WRITEFUNCTION, buffer.write)
+        # buffer = BytesIO()
+        bodyString = []
+
+        # reallocate buffer to ensure there is enough room?
+        # may not be necessary, but certainly one less thing to debug in the future
+        def newbufwrite(data):
+            print(len(data))
+            buffer = BytesIO()
+            buffer.write(data)
+            bufGV = buffer.getvalue()
+            bufDC = bufGV.decode()
+            bufDC = bufDC.replace("][", "],[")
+            bodyString.append(bufDC)
+            
+
+        # new URL that sorts the assignments - refreshes the list 
+        # without the sort, some assignments get omitted - Canvas API Bug
+        client.setopt(client.URL, "https://canvas.pitt.edu/api/v1/courses/" + str(IDDict[canvasClass][0]) + "/assignments?order_by=name")
+        client.setopt(client.WRITEFUNCTION, newbufwrite)
+        client.setopt(pycurl.MAXFILESIZE, 1024*1024*40)
         client.setopt(pycurl.HTTPHEADER, ['Authorization: Bearer ' + Canvas_API_KEY])
         client.perform()
 
+        # print(bodyString)
+
+        bufDC = ""
+
+        for x in bodyString:
+            bufDC += x
+
+
         # Turn Buffer into Python string in Json Format
-        bufGV = buffer.getvalue()
-        bufDC = bufGV.decode()
-        bufDC = bufDC.replace("][", "],[") # These 3 lines of code ensure the json format is followed
+        # bufGV = buffer.getvalue()
+        # print(bufGV)
+        # bufDC = bufGV.decode()
+        # bufDC = bufDC.replace("][", "],[") # These 3 lines of code ensure the json format is followed
         if(bufDC.find("],[") != -1): 
             bufDC = "{" + bufDC + "}"
 
         body = json.loads(bufDC)
-        # print(body)
+        print(body)
+
+        print(len(body))
+        # print(len(bufGV))
+
+
+        # print(canvasClass)
+
+        # import sys
+        # print(sys.getsizeof(buffer))
 
         for assignment in range(len(body)):
             createTask(canvasClass, body[assignment]["name"], body[assignment]["due_at"], body[assignment]["description"], str(body[assignment]["id"]), canvasClass)
-        buffer.close()
+        # buffer.close()
 
     # Make the data XML file pretty/readable
     ET.indent(root, space="\t", level=0)
